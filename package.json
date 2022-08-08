@@ -1,5 +1,5 @@
 {
-  "name": "mb-utils",
+  "name": "@rtmb/mb-utils",
   "version": "1.0.0",
   "description": "MB utils package",
   "main": "dist/index.js",
