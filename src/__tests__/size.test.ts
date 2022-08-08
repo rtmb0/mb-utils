@@ -18,7 +18,6 @@ describe('Size', () => {
 describe('Size', () => {
   it('should ignore falsy values from the array and if no values are left then return empty string', () => {
     const size = Size.create([false, null, undefined, NaN]);
-    console.log(size.value);
     expect(size.value).toBe('');
   });
 });
@@ -26,7 +25,6 @@ describe('Size', () => {
 describe('Size', () => {
   it('should filter out falsy values from arrays', () => {
     const size = Size.create([false, null, '4622', undefined, NaN]);
-    console.log(size.value);
     expect(size.value).toEqual(['4622']);
   });
 });
@@ -34,7 +32,6 @@ describe('Size', () => {
 describe('Size', () => {
   it('should convert numbers to strings from arrays', () => {
     const size = Size.create([4622, 4822, '4624']);
-    console.log(size.value);
     expect(size.value).toEqual(['4622', '4822', '4624']);
   });
 });
@@ -42,7 +39,6 @@ describe('Size', () => {
 describe('Size', () => {
   it('should convert a single number to string', () => {
     const size = Size.create(4622);
-    console.log(size.value);
     expect(size.value).toBe('4622');
   });
 });
