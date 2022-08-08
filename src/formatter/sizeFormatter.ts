@@ -1,4 +1,4 @@
-import { Size } from './size'
+import { Size } from './size';
 
 export class SizeFormatter {
   private groupedSizes: { [index: string]: string[] };
@@ -11,7 +11,7 @@ export class SizeFormatter {
     this.size = size;
     this.sizeValue = size.value;
     this.isArray = size.getIsArray;
-    this.extraSizes = extraSizes ? ` - ${extraSizes} ` : " ";
+    this.extraSizes = extraSizes ? ` - ${extraSizes} ` : ' ';
     this.groupedSizes = {};
     this.groupSizes();
   }
@@ -30,9 +30,7 @@ export class SizeFormatter {
       const shouldBeFormatted = sizeToNum > 1000;
 
       if (!shouldBeFormatted) {
-        groupedSizes[size] = groupedSizes.hasOwnProperty(size)
-          ? groupedSizes[size]
-          : [];
+        groupedSizes[size] = groupedSizes.hasOwnProperty(size) ? groupedSizes[size] : [];
         continue;
       }
 
@@ -49,34 +47,24 @@ export class SizeFormatter {
     this.groupedSizes = hasGroupedSizes ? groupedSizes : {};
   }
 
-  formatSizesToHTML(separator: string = "/") {
-    if (!this.isArray) return "";
+  formatSizesToHTML(separator: string = '/') {
+    if (!this.isArray) return '';
 
-    const formattedSizes = Object.keys(this.groupedSizes).reduce(
-      (acc: string[], key: string) => {
-        const hasMultipleSizes = this.groupedSizes[key].length > 0;
-        return hasMultipleSizes
-          ? [
-              ...acc,
-              `<strong>${key}-${this.groupedSizes[key].join(separator)}${
-                this.extraSizes
-              }(mm)</strong>`,
-            ]
-          : [...acc, `<strong>${key}${this.extraSizes}(mm)</strong>`];
-      },
-      []
-    );
+    const formattedSizes = Object.keys(this.groupedSizes).reduce((acc: string[], key: string) => {
+      const hasMultipleSizes = this.groupedSizes[key].length > 0;
+      return hasMultipleSizes
+        ? [...acc, `<strong>${key}-${this.groupedSizes[key].join(separator)}${this.extraSizes}(mm)</strong>`]
+        : [...acc, `<strong>${key}${this.extraSizes}(mm)</strong>`];
+    }, []);
 
-    return `${formattedSizes.join(" <br> ")}`;
+    return `${formattedSizes.join(' <br> ')}`;
   }
 
-  formatSizeWithSeparator(separator: string = "-") {
-    if (this.sizeValue === "") return this.sizeValue;
+  formatSizeWithSeparator(separator: string = '-') {
+    if (this.sizeValue === '') return this.sizeValue;
 
     const sizeToNum = parseFloat(this.sizeValue as string);
 
-    return sizeToNum > 1000
-      ? `${this.sizeValue.slice(0, 2)}${separator}${this.sizeValue.slice(2, 4)}`
-      : this.sizeValue;
+    return sizeToNum > 1000 ? `${this.sizeValue.slice(0, 2)}${separator}${this.sizeValue.slice(2, 4)}` : this.sizeValue;
   }
 }
