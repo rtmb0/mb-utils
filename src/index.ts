@@ -13,4 +13,4 @@ function formatToHTML(sizeVal: string | string[], extraSize?: string, separator?
   return formatter.formatSizesToHTML(separator);
 }
 
-export default { formatWithSeparator, formatToHTML };
+module.exports = { formatWithSeparator, formatToHTML };
