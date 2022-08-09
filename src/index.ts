@@ -12,3 +12,9 @@ export function formatSizesToHTML(sizeValue: string[], extraSize?: string, separ
   const formatter = new SizeFormatter(size, extraSize);
   return formatter.formatSizesToHTML(separator);
 }
+
+export function getEyeSize(sizeValue: string) {
+  const size = Size.create(sizeValue);
+  const formatter = new SizeFormatter(size);
+  return formatter.getEyeSize();
+}
