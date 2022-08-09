@@ -47,6 +47,10 @@ export class SizeFormatter {
     this.groupedSizes = hasGroupedSizes ? groupedSizes : {};
   }
 
+  private isFormattable () {
+    return parseFloat(this.sizeValue as string) > 1000
+  }
+
   formatSizesToHTML(separator: string = '/') {
     if (!this.isArray) return '';
 
@@ -63,8 +67,16 @@ export class SizeFormatter {
   formatSizeWithSeparator(separator: string = '-') {
     if (this.sizeValue === '') return this.sizeValue;
 
-    const sizeToNum = parseFloat(this.sizeValue as string);
+    return this.isFormattable() 
+      ? `${this.sizeValue.slice(0, 2)}${separator}${this.sizeValue.slice(2, 4)}` 
+      : this.sizeValue;
+  }
 
-    return sizeToNum > 1000 ? `${this.sizeValue.slice(0, 2)}${separator}${this.sizeValue.slice(2, 4)}` : this.sizeValue;
+  getEyeSize () {
+    if (this.isArray) return this.sizeValue
+
+    return this.isFormattable()
+      ? this.sizeValue.slice(0, 2)
+      : this.sizeValue
   }
 }
