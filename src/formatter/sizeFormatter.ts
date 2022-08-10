@@ -11,7 +11,7 @@ export class SizeFormatter {
     this.size = size;
     this.sizeValue = size.value;
     this.isArray = size.getIsArray;
-    this.extraSizes = extraSizes ? ` - ${extraSizes} ` : ' ';
+    this.extraSizes = extraSizes ? extraSizes : ' ';
     this.groupedSizes = {};
     this.groupSizes();
   }
@@ -51,14 +51,30 @@ export class SizeFormatter {
     return parseFloat(this.sizeValue as string) > 1000;
   }
 
+  private formatExtraSizes() {
+    const multipleExtraSizes =
+      this.extraSizes === ' '
+        ? this.extraSizes
+        : this.extraSizes.split(' ').length === 1
+        ? ` - ${this.extraSizes} `
+        : ` - ${this.extraSizes.split(' - ')[1]} `;
+
+    const singleExtraSizes = this.extraSizes === ' ' ? this.extraSizes : ` - ${this.extraSizes} `;
+
+    return [multipleExtraSizes, singleExtraSizes];
+  }
+
   formatSizesToHTML(separator: string = '/') {
     if (!this.isArray) return '';
 
     const formattedSizes = Object.keys(this.groupedSizes).reduce((acc: string[], key: string) => {
       const hasMultipleSizes = this.groupedSizes[key].length > 0;
+
+      const [multipleExtraSizes, singleExtraSizes] = this.formatExtraSizes();
+
       return hasMultipleSizes
-        ? [...acc, `<strong>${key}-${this.groupedSizes[key].join(separator)}${this.extraSizes}(mm)</strong>`]
-        : [...acc, `<strong>${key}${this.extraSizes}(mm)</strong>`];
+        ? [...acc, `<strong>${key} - ${this.groupedSizes[key].join(separator)}${multipleExtraSizes}(mm)</strong>`]
+        : [...acc, `<strong>${key}${singleExtraSizes}(mm)</strong>`];
     }, []);
 
     return `${formattedSizes.join(' <br> ')}`;

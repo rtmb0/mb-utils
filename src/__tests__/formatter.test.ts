@@ -54,7 +54,7 @@ describe('formatSizesToHTML', () => {
     const formatter = new SizeFormatter(size);
     const formattedSize = formatter.formatSizesToHTML();
     expect(formattedSize).toBe(
-      `<strong>44-22 (mm)</strong> <br> <strong>46-24 (mm)</strong> <br> <strong>48-22 (mm)</strong>`,
+      `<strong>44 - 22 (mm)</strong> <br> <strong>46 - 24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`,
     );
   });
 });
@@ -65,7 +65,7 @@ describe('formatSizesToHTML', () => {
     const formatter = new SizeFormatter(size);
     const formattedSize = formatter.formatSizesToHTML();
     expect(formattedSize).toBe(
-      `<strong>44-22 (mm)</strong> <br> <strong>46-24 (mm)</strong> <br> <strong>48-22 (mm)</strong>`,
+      `<strong>44 - 22 (mm)</strong> <br> <strong>46 - 24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`,
     );
   });
 });
@@ -76,7 +76,7 @@ describe('formatSizesToHTML', () => {
     const formatter = new SizeFormatter(size);
     const formattedSize = formatter.formatSizesToHTML();
     expect(formattedSize).toBe(
-      `<strong>44-22 (mm)</strong> <br> <strong>46-24 (mm)</strong> <br> <strong>48-22 (mm)</strong>`,
+      `<strong>44 - 22 (mm)</strong> <br> <strong>46 - 24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`,
     );
   });
 });
@@ -87,7 +87,7 @@ describe('formatSizesToHTML', () => {
     const formatter = new SizeFormatter(size);
     const formattedSize = formatter.formatSizesToHTML();
     expect(formattedSize).toBe(
-      `<strong>44-22 (mm)</strong> <br> <strong>46-24 (mm)</strong> <br> <strong>48 (mm)</strong>`,
+      `<strong>44 - 22 (mm)</strong> <br> <strong>46 - 24 (mm)</strong> <br> <strong>48 (mm)</strong>`,
     );
   });
 });
@@ -97,7 +97,7 @@ describe('formatSizesToHTML', () => {
     const size = Size.create(['4622', '4624', '4626']);
     const formatter = new SizeFormatter(size);
     const formattedSize = formatter.formatSizesToHTML();
-    expect(formattedSize).toBe(`<strong>46-22/24/26 (mm)</strong>`);
+    expect(formattedSize).toBe(`<strong>46 - 22/24/26 (mm)</strong>`);
   });
 });
 
@@ -106,7 +106,7 @@ describe('formatSizesToHTML', () => {
     const size = Size.create(['4622', '4624', '4626', '4822']);
     const formatter = new SizeFormatter(size);
     const formattedSize = formatter.formatSizesToHTML();
-    expect(formattedSize).toBe(`<strong>46-22/24/26 (mm)</strong> <br> <strong>48-22 (mm)</strong>`);
+    expect(formattedSize).toBe(`<strong>46 - 22/24/26 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`);
   });
 });
 
@@ -115,7 +115,7 @@ describe('formatSizesToHTML', () => {
     const size = Size.create(['4624', '4626', '46.22']);
     const formatter = new SizeFormatter(size);
     const formattedSize = formatter.formatSizesToHTML();
-    expect(formattedSize).toBe(`<strong>46-24/26 (mm)</strong> <br> <strong>46.22 (mm)</strong>`);
+    expect(formattedSize).toBe(`<strong>46 - 24/26 (mm)</strong> <br> <strong>46.22 (mm)</strong>`);
   });
 });
 
@@ -144,18 +144,36 @@ describe('formatSizesToHTML', () => {
     const size = Size.create([null, 4822, NaN, '4622', undefined, 4624]);
     const formatter = new SizeFormatter(size);
     const formattedSize = formatter.formatSizesToHTML();
-    expect(formattedSize).toBe(`<strong>46-22/24 (mm)</strong> <br> <strong>48-22 (mm)</strong>`);
+    expect(formattedSize).toBe(`<strong>46 - 22/24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`);
   });
 });
 
 // extra size tests
 
 describe('formatSizesToHTML', () => {
-  it('should properly format using extra size', () => {
+  it('should properly format using one extra size', () => {
     const size = Size.create(['4822', '4622', '4624']);
     const formatter = new SizeFormatter(size, '131');
     const formattedSize = formatter.formatSizesToHTML();
-    expect(formattedSize).toBe(`<strong>46-22/24 - 131 (mm)</strong> <br> <strong>48-22 - 131 (mm)</strong>`);
+    expect(formattedSize).toBe(`<strong>46 - 22/24 - 131 (mm)</strong> <br> <strong>48 - 22 - 131 (mm)</strong>`);
+  });
+});
+
+describe('formatSizesToHTML', () => {
+  it('should ignore 25 in favor of its own data (such as: 22 and 24)', () => {
+    const size = Size.create(['4822', '4622', '4624']);
+    const formatter = new SizeFormatter(size, '25 - 131');
+    const formattedSize = formatter.formatSizesToHTML();
+    expect(formattedSize).toBe(`<strong>46 - 22/24 - 131 (mm)</strong> <br> <strong>48 - 22 - 131 (mm)</strong>`);
+  });
+});
+
+describe('formatSizesToHTML', () => {
+  it('should ignore 25 in favor of its own data (such as: 22 and 24), if the last is present', () => {
+    const size = Size.create(['4822', '4622', '4624', '50']);
+    const formatter = new SizeFormatter(size, '25 - 131');
+    const formattedSize = formatter.formatSizesToHTML();
+    expect(formattedSize).toBe(`<strong>46 - 22/24 - 131 (mm)</strong> <br> <strong>48 - 22 - 131 (mm)</strong> <br> <strong>50 - 25 - 131 (mm)</strong>`);
   });
 });
 
@@ -164,7 +182,7 @@ describe('formatSizesToHTML', () => {
     const size = Size.create(['4822', '4622', '4624']);
     const formatter = new SizeFormatter(size, '');
     const formattedSize = formatter.formatSizesToHTML();
-    expect(formattedSize).toBe(`<strong>46-22/24 (mm)</strong> <br> <strong>48-22 (mm)</strong>`);
+    expect(formattedSize).toBe(`<strong>46 - 22/24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`);
   });
 });
 
@@ -173,6 +191,6 @@ describe('formatSizesToHTML', () => {
     const size = Size.create(['4822', '4622', '4624']);
     const formatter = new SizeFormatter(size, undefined);
     const formattedSize = formatter.formatSizesToHTML();
-    expect(formattedSize).toBe(`<strong>46-22/24 (mm)</strong> <br> <strong>48-22 (mm)</strong>`);
+    expect(formattedSize).toBe(`<strong>46 - 22/24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`);
   });
 });
