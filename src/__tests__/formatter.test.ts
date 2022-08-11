@@ -124,7 +124,9 @@ describe('formatSizesToHTML', () => {
     const size = Size.create(['46.22', '4818', '4626', '4624']);
     const formatter = new SizeFormatter(size);
     const formattedSize = formatter.formatSizesToHTML();
-    expect(formattedSize).toBe(`<strong>46 - 24/26 (mm)</strong> <br> <strong>46.22 (mm)</strong> <br> <strong>48 - 18 (mm)</strong>`);
+    expect(formattedSize).toBe(
+      `<strong>46 - 24/26 (mm)</strong> <br> <strong>46.22 (mm)</strong> <br> <strong>48 - 18 (mm)</strong>`,
+    );
   });
 });
 
