@@ -119,6 +119,24 @@ describe('formatSizesToHTML', () => {
   });
 });
 
+describe('formatSizesToHTML', () => {
+  it('should sort by eye size, even when using floats', () => {
+    const size = Size.create(['46.22', '4818', '4626', '4624']);
+    const formatter = new SizeFormatter(size);
+    const formattedSize = formatter.formatSizesToHTML();
+    expect(formattedSize).toBe(`<strong>46 - 24/26 (mm)</strong> <br> <strong>46.22 (mm)</strong> <br> <strong>48 - 18 (mm)</strong>`);
+  });
+});
+
+describe('formatSizesToHTML', () => {
+  it('should sort bridge sizes', () => {
+    const size = Size.create(['4626', '4624', '4628']);
+    const formatter = new SizeFormatter(size);
+    const formattedSize = formatter.formatSizesToHTML();
+    expect(formattedSize).toBe(`<strong>46 - 24/26/28 (mm)</strong>`);
+  });
+});
+
 // falsy and strange mix of values
 
 describe('formatSizesToHTML', () => {

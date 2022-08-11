@@ -6,6 +6,9 @@ export class SizeFormatter {
   private isArray: boolean;
   private extraSizes: string;
   private size: Size;
+  private singleExtraSizes: string;
+  private multipleExtraSizes: string;
+  private sortedKeys: string[];
 
   constructor(size: Size, extraSizes?: string) {
     this.size = size;
@@ -13,7 +16,17 @@ export class SizeFormatter {
     this.isArray = size.getIsArray;
     this.extraSizes = extraSizes ? extraSizes : ' ';
     this.groupedSizes = {};
+    this.singleExtraSizes = '';
+    this.multipleExtraSizes = '';
+    this.sortedKeys = [];
+    this.formatExtraSizes();
     this.groupSizes();
+    this.sortGroupedSizes();
+  }
+
+  private sortGroupedSizes() {
+    if (Object.keys(this.groupedSizes).length < 1) return;
+    this.sortedKeys = Object.keys(this.groupedSizes).sort((a, b) => parseFloat(a) - parseFloat(b));
   }
 
   private groupSizes() {
@@ -38,7 +51,7 @@ export class SizeFormatter {
       const otherSize = sizeToNum.toString().substring(2, 4);
 
       groupedSizes[eyeSize] = groupedSizes.hasOwnProperty(eyeSize)
-        ? [...groupedSizes[eyeSize], otherSize]
+        ? [...groupedSizes[eyeSize], otherSize].sort((a, b) => parseFloat(a) - parseFloat(b))
         : [otherSize];
     }
 
@@ -61,20 +74,19 @@ export class SizeFormatter {
 
     const singleExtraSizes = this.extraSizes === ' ' ? this.extraSizes : ` - ${this.extraSizes} `;
 
-    return [multipleExtraSizes, singleExtraSizes];
+    this.multipleExtraSizes = multipleExtraSizes;
+    this.singleExtraSizes = singleExtraSizes;
   }
 
   formatSizesToHTML(separator: string = '/') {
     if (!this.isArray) return '';
 
-    const formattedSizes = Object.keys(this.groupedSizes).reduce((acc: string[], key: string) => {
+    const formattedSizes = this.sortedKeys.reduce((acc: string[], key: string) => {
       const hasMultipleSizes = this.groupedSizes[key].length > 0;
 
-      const [multipleExtraSizes, singleExtraSizes] = this.formatExtraSizes();
-
       return hasMultipleSizes
-        ? [...acc, `<strong>${key} - ${this.groupedSizes[key].join(separator)}${multipleExtraSizes}(mm)</strong>`]
-        : [...acc, `<strong>${key}${singleExtraSizes}(mm)</strong>`];
+        ? [...acc, `<strong>${key} - ${this.groupedSizes[key].join(separator)}${this.multipleExtraSizes}(mm)</strong>`]
+        : [...acc, `<strong>${key}${this.singleExtraSizes}(mm)</strong>`];
     }, []);
 
     return `${formattedSizes.join(' <br> ')}`;
