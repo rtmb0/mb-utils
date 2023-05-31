@@ -1,108 +1,107 @@
 import { Size } from './size';
+import { Attributes } from './attributes';
+import type { AttributeValue } from './attributes';
+type GroupedAttribute = {
+  eye: string;
+  bridge: string[];
+  temple: string;
+};
+type GroupedSizes = Record<string, GroupedAttribute>;
 
 export class SizeFormatter {
-  private groupedSizes: { [index: string]: string[] };
-  private sizeValue: string | string[];
-  private isArray: boolean;
-  private extraSizes: string;
-  private size: Size;
-  private singleExtraSizes: string;
-  private multipleExtraSizes: string;
-  private sortedKeys: string[];
+  constructor() {}
 
-  constructor(size: Size, extraSizes?: string) {
-    this.size = size;
-    this.sizeValue = size.value;
-    this.isArray = size.getIsArray;
-    this.extraSizes = extraSizes ? extraSizes : ' ';
-    this.groupedSizes = {};
-    this.singleExtraSizes = '';
-    this.multipleExtraSizes = '';
-    this.sortedKeys = [];
-    this.formatExtraSizes();
-    this.groupSizes();
-    this.sortGroupedSizes();
+  private sortGroupedSizes(groupedSizes: GroupedSizes) {
+    return Object.keys(groupedSizes).sort((a, b) => parseFloat(a) - parseFloat(b));
   }
 
-  private sortGroupedSizes() {
-    if (Object.keys(this.groupedSizes).length < 1) return;
-    this.sortedKeys = Object.keys(this.groupedSizes).sort((a, b) => parseFloat(a) - parseFloat(b));
+  private sortBridge(sortBridge: GroupedAttribute['bridge']) {
+    return sortBridge.sort((a, b) => parseFloat(a) - parseFloat(b));
   }
 
-  private groupSizes() {
-    if (!this.isArray) return;
+  private groupSizes(attributes: AttributeValue[]) {
+    const groupedSizes: GroupedSizes = {};
 
-    const groupedSizes: { [index: string]: string[] } = {};
-
-    for (const size of this.sizeValue) {
-      const sizeToNum = parseFloat(size);
+    for (const attribute of attributes) {
+      const eye = attribute.eye;
+      const sizeToNum = parseFloat(eye);
       const isSizeNumber = !isNaN(sizeToNum);
 
       if (!isSizeNumber) continue;
-
-      const shouldBeFormatted = sizeToNum > 1000;
+      const shouldBeFormatted = this.isFormattable(eye);
 
       if (!shouldBeFormatted) {
-        groupedSizes[size] = groupedSizes.hasOwnProperty(size) ? groupedSizes[size] : [];
+        const maybeBridge = attribute.bridge ? [attribute.bridge] : [];
+        const bridge = groupedSizes.hasOwnProperty(eye)
+          ? [...groupedSizes[eye].bridge, ...maybeBridge]
+          : [...maybeBridge];
+        groupedSizes[eye] = { eye, bridge, temple: attribute.temple || '' };
         continue;
       }
 
       const eyeSize = sizeToNum.toString().substring(0, 2);
-      const otherSize = sizeToNum.toString().substring(2, 4);
+      const bridge = sizeToNum.toString().substring(2, 4);
 
-      groupedSizes[eyeSize] = groupedSizes.hasOwnProperty(eyeSize)
-        ? [...groupedSizes[eyeSize], otherSize].sort((a, b) => parseFloat(a) - parseFloat(b))
-        : [otherSize];
+      if (groupedSizes.hasOwnProperty(eyeSize)) {
+        groupedSizes[eyeSize].bridge = [...groupedSizes[eyeSize].bridge, bridge];
+      } else {
+        groupedSizes[eyeSize] = {
+          eye: eyeSize,
+          bridge: [bridge],
+          temple: attribute.temple || '',
+        };
+      }
+
+      if (groupedSizes[eyeSize].bridge.length > 0)
+        groupedSizes[eyeSize].bridge = this.sortBridge(groupedSizes[eyeSize].bridge);
     }
 
-    const hasGroupedSizes = Object.keys(groupedSizes).length > 0;
-
-    this.groupedSizes = hasGroupedSizes ? groupedSizes : {};
+    return groupedSizes;
   }
 
-  private isFormattable() {
-    return parseFloat(this.sizeValue as string) > 1000;
+  private isFormattable(size: string) {
+    return parseFloat(size as string) > 1000;
   }
 
-  private formatExtraSizes() {
-    const multipleExtraSizes =
-      this.extraSizes === ' '
-        ? this.extraSizes
-        : this.extraSizes.split(' ').length === 1
-        ? ` - ${this.extraSizes} `
-        : ` - ${this.extraSizes.split(' - ')[1]} `;
+  formatSizesToHTML(attributesData: Attributes, separator: string = '/') {
+    const attributes = attributesData.value;
+    if (attributes.length === 0) return '';
 
-    const singleExtraSizes = this.extraSizes === ' ' ? this.extraSizes : ` - ${this.extraSizes} `;
+    const groupedSizes = this.groupSizes(attributes);
+    const sortedKeys = this.sortGroupedSizes(groupedSizes);
+    if (Object.keys(groupedSizes).length === 0) return '';
+    console.log('GROUPED', groupedSizes);
 
-    this.multipleExtraSizes = multipleExtraSizes;
-    this.singleExtraSizes = singleExtraSizes;
-  }
+    const formattedSizes = sortedKeys.reduce((acc: string[], eye: string) => {
+      const temple = groupedSizes[eye].temple ? ` - ${groupedSizes[eye].temple} ` : ' ';
+      const bridgeSizes = groupedSizes[eye].bridge;
+      let bridge = '';
+      if (bridgeSizes.length === 1) bridge = ` - ${[...new Set(bridgeSizes)].join('')}`;
+      if (bridgeSizes.length > 1) bridge = ` - ${[...new Set(bridgeSizes)].join(separator)}`;
+      console.log({
+        eye,
+        bridge,
+        temple,
+      });
 
-  formatSizesToHTML(separator: string = '/') {
-    if (!this.isArray) return '';
-
-    const formattedSizes = this.sortedKeys.reduce((acc: string[], key: string) => {
-      const hasMultipleSizes = this.groupedSizes[key].length > 0;
-
-      return hasMultipleSizes
-        ? [...acc, `<strong>${key} - ${this.groupedSizes[key].join(separator)}${this.multipleExtraSizes}(mm)</strong>`]
-        : [...acc, `<strong>${key}${this.singleExtraSizes}(mm)</strong>`];
+      return [...acc, `<strong>${eye}${bridge}${temple}(mm)</strong>`];
     }, []);
 
     return `${formattedSizes.join(' <br> ')}`;
   }
 
-  formatSizeWithSeparator(separator: string = '-') {
-    if (this.sizeValue === '') return this.sizeValue;
+  formatSizeWithSeparator(size: Size, separator: string = '-') {
+    if (size.value === '') return size.value;
 
-    return this.isFormattable()
-      ? `${this.sizeValue.slice(0, 2)}${separator}${this.sizeValue.slice(2, 4)}`
-      : this.sizeValue;
+    return this.isFormattable(size.value as string)
+      ? `${size.value.slice(0, 2)}${separator}${size.value.slice(2, 4)}`
+      : size.value;
   }
 
-  getEyeSize() {
-    if (this.isArray) return this.sizeValue;
+  getEyeSize(size: Size) {
+    const isArray = Array.isArray(size);
+    if (isArray) return size.value;
 
-    return this.isFormattable() ? this.sizeValue.slice(0, 2) : this.sizeValue;
+    return this.isFormattable(size.value as string) ? size.value.slice(0, 2) : size.value;
   }
 }
