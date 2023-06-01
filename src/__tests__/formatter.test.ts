@@ -40,21 +40,21 @@ describe('formatSizeWithSeparator', () => {
 
 // // format to HTML
 
-describe.only('formatSizesToHTML', () => {
+describe('formatSizesToHTML', () => {
   it('should format both number convertible strings and pure numbers within mixed typed array', () => {
     const rawAttributes = [
       {
-        eye: '4422',
+        primary: '4422',
       },
       {
-        eye: '4624',
+        primary: '4624',
       },
       {
-        eye: '4822',
+        primary: 4822,
         bridge: '26',
       },
     ];
-    const attributes = Attributes.create(rawAttributes)
+    const attributes = Attributes.create(rawAttributes as any);
     const formatter = new SizeFormatter();
     const formattedSize = formatter.formatSizesToHTML(attributes);
     expect(formattedSize).toBe(
@@ -64,40 +64,37 @@ describe.only('formatSizesToHTML', () => {
 });
 
 describe('formatSizesToHTML', () => {
-  it('should ignore non formattable sizes and format both number convertible strings and pure numbers within mixed typed array', () => {
-    const size = Size.create(['4422', 4624, 4822, 'notANumber']);
-    const formatter = new SizeFormatter(size);
-    const formattedSize = formatter.formatSizesToHTML();
+    it('should format only number convertible strings within an array of strings', () => {
+    const rawAttributes = [
+      {
+        primary: '4422',
+      },
+      {
+        primary: '4624',
+      },
+      {
+        primary: 'definitelyNotANumber',
+      },
+    ];
+    const attributes = Attributes.create(rawAttributes);
+    const formatter = new SizeFormatter();
+    const formattedSize = formatter.formatSizesToHTML(attributes);
     expect(formattedSize).toBe(
-      `<strong>44 - 22 (mm)</strong> <br> <strong>46 - 24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`,
+      `<strong>44 - 22 (mm)</strong> <br> <strong>46 - 24 (mm)</strong>`,
     );
   });
-});
-
-// describe('formatSizesToHTML', () => {
-//   it('should format only number convertible strings within an array of strings', () => {
-//     const size = Size.create(['4422', '4624', '4822', 'abc', 'definitelyNotANumber']);
-//     const formatter = new SizeFormatter(size);
-//     const formattedSize = formatter.formatSizesToHTML();
-//     expect(formattedSize).toBe(
-//       `<strong>44 - 22 (mm)</strong> <br> <strong>46 - 24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`,
-//     );
-//   });
-// });
-
-describe('formatSizesToHTML', () => {
   it('should format both double and four digit convertible strings within an array of strings', () => {
     const rawAttributes = [
       {
-        eye: '44',
+        primary: '44',
         bridge: '22',
       },
       {
-        eye: '46',
+        primary: '46',
         bridge: '24',
       },
       {
-        eye: '48',
+        primary: '48',
       },
     ];
     const attributes = Attributes.create(rawAttributes);
@@ -108,18 +105,18 @@ describe('formatSizesToHTML', () => {
     );
   });
 
-  it('should group bridge sizes, with a "/" separator, if they have the same eye value', () => {
+  it('should group bridge sizes, with a "/" separator, if they have the same primary value', () => {
     const rawAttributes = [
       {
-        eye: '4622',
+        primary: '4622',
         bridge: '22',
       },
       {
-        eye: '4624',
+        primary: '4624',
         bridge: '24',
       },
       {
-        eye: '4626',
+        primary: '4626',
         bridge: '26',
       },
     ];
@@ -129,22 +126,22 @@ describe('formatSizesToHTML', () => {
     expect(formattedSize).toBe(`<strong>46 - 22/24/26 (mm)</strong>`);
   });
 
-  it('should group bridge sizes ONLY with the same eye value', () => {
+  it('should group bridge sizes ONLY with the same primary value', () => {
     const rawAttributes = [
       {
-        eye: '4622',
+        primary: '4622',
         bridge: '22',
       },
       {
-        eye: '4624',
+        primary: '4624',
         bridge: '24',
       },
       {
-        eye: '4626',
+        primary: '4626',
         bridge: '26',
       },
       {
-        eye: '4822',
+        primary: '4822',
         bridge: '22',
       },
     ];
@@ -157,15 +154,15 @@ describe('formatSizesToHTML', () => {
   it('should format float', () => {
     const rawAttributes = [
       {
-        eye: '4624',
+        primary: '4624',
         bridge: '22',
       },
       {
-        eye: '4626',
+        primary: '4626',
         bridge: '24',
       },
       {
-        eye: '46.22',
+        primary: '46.22',
       },
     ];
     const attributes = Attributes.create(rawAttributes);
@@ -173,118 +170,186 @@ describe('formatSizesToHTML', () => {
     const formattedSize = formatter.formatSizesToHTML(attributes);
     expect(formattedSize).toBe(`<strong>46 - 24/26 (mm)</strong> <br> <strong>46.22 (mm)</strong>`);
   });
-});
 
-// describe('formatSizesToHTML', () => {
-//   it('should sort by eye size, even when using floats', () => {
-//     const size = Size.create(['46.22', '4818', '4626', '4624']);
-//     const formatter = new SizeFormatter(size);
-//     const formattedSize = formatter.formatSizesToHTML();
-//     expect(formattedSize).toBe(
-//       `<strong>46 - 24/26 (mm)</strong> <br> <strong>46.22 (mm)</strong> <br> <strong>48 - 18 (mm)</strong>`,
-//     );
-//   });
-// });
-
-// describe('formatSizesToHTML', () => {
-//   it('should sort bridge sizes', () => {
-//     const size = Size.create(['4626', '4624', '4628']);
-//     const formatter = new SizeFormatter(size);
-//     const formattedSize = formatter.formatSizesToHTML();
-//     expect(formattedSize).toBe(`<strong>46 - 24/26/28 (mm)</strong>`);
-//   });
-// });
-
-// // falsy and strange mix of values
-
-// describe('formatSizesToHTML', () => {
-//   it('should ignore falsy types and return empty string', () => {
-//     const size = Size.create([null, NaN, undefined, '', false]);
-//     const formatter = new SizeFormatter(size);
-//     const formattedSize = formatter.formatSizesToHTML();
-//     expect(formattedSize).toBe('');
-//   });
-// });
-
-// describe('formatSizesToHTML', () => {
-//   it('should ignore empty arrays and objects and return empty string', () => {
-//     const size = Size.create([[], {}]);
-//     const formatter = new SizeFormatter(size);
-//     const formattedSize = formatter.formatSizesToHTML();
-//     expect(formattedSize).toBe('');
-//   });
-// });
-
-// describe('formatSizesToHTML', () => {
-//   it('should ignore falsy types and only return formatted truthy values', () => {
-//     const size = Size.create([null, 4822, NaN, '4622', undefined, 4624]);
-//     const formatter = new SizeFormatter(size);
-//     const formattedSize = formatter.formatSizesToHTML();
-//     expect(formattedSize).toBe(`<strong>46 - 22/24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`);
-//   });
-// });
-
-// // extra size tests
-
-describe('formatSizesToHTML', () => {
-  it('should properly format using the temple of each attribute', () => {
+  it('should sort by primary size, even when using floats', () => {
     const rawAttributes = [
       {
-        eye: '4622',
-        bridge: '22',
-        temple: '140',
+        primary: '46.22',
       },
       {
-        eye: '4624',
-        bridge: '24',
-        temple: '140',
+        primary: '4818',
       },
       {
-        eye: '4822',
-        temple: '150',
+        primary: '4626',
+      },
+      {
+        primary: '4624',
       },
     ];
     const attributes = Attributes.create(rawAttributes);
     const formatter = new SizeFormatter();
     const formattedSize = formatter.formatSizesToHTML(attributes);
-    expect(formattedSize).toBe(`<strong>46 - 22/24 - 140 (mm)</strong> <br> <strong>48 - 22 - 150 (mm)</strong>`);
+    expect(formattedSize).toBe(
+      `<strong>46 - 24/26 (mm)</strong> <br> <strong>46.22 (mm)</strong> <br> <strong>48 - 18 (mm)</strong>`,
+    );
+  });
+
+  it('should sort bridge sizes', () => {
+    const rawAttributes = [
+      {
+        primary: '4628',
+        bridge: '22',
+      },
+      {
+        primary: '4626',
+        bridge: '24',
+      },
+      {
+        primary: '4624',
+        bridge: '26',
+      },
+    ];
+    const attributes = Attributes.create(rawAttributes);
+    const formatter = new SizeFormatter();
+    const formattedSize = formatter.formatSizesToHTML(attributes);
+    expect(formattedSize).toBe(`<strong>46 - 24/26/28 (mm)</strong>`);
+  });
+
+  describe('julius tart 4 digits primary size shananigans', () => {
+    it('should ignore bridge size (25) in favor of its own data (such as: 22 and 24)', () => {
+      const rawAttributes = [
+        {
+          primary: '4622',
+          bridge: '25',
+          temple: '131',
+        },
+        {
+          primary: '4624',
+          bridge: '25',
+          temple: '131',
+        },
+        {
+          primary: '4822',
+          bridge: '25',
+          temple: '135',
+        },
+      ];
+      const attributes = Attributes.create(rawAttributes);
+      const formatter = new SizeFormatter();
+      const formattedSize = formatter.formatSizesToHTML(attributes);
+      expect(formattedSize).toBe(`<strong>46 - 22/24 - 131 (mm)</strong> <br> <strong>48 - 22 - 135 (mm)</strong>`);
+    });
+
+    it('should ignore bridge (25) in favor of its own data (such as: 22 and 24), unless it has two digits', () => {
+      const rawAttributes = [
+        {
+          primary: '4622',
+          bridge: '25',
+          temple: '131',
+        },
+        {
+          primary: '4624',
+          bridge: '25',
+          temple: '131',
+        },
+        {
+          primary: '50',
+          bridge: '25',
+          temple: '135',
+        },
+      ];
+      const attributes = Attributes.create(rawAttributes);
+      const formatter = new SizeFormatter();
+      const formattedSize = formatter.formatSizesToHTML(attributes);
+      expect(formattedSize).toBe(`<strong>46 - 22/24 - 131 (mm)</strong> <br> <strong>50 - 25 - 135 (mm)</strong>`);
+    });
+  });
+  describe('temple size tests', () => {
+    it('should properly format using the temple of each attribute', () => {
+      const rawAttributes = [
+        {
+          primary: '4622',
+          bridge: '22',
+          temple: '140',
+        },
+        {
+          primary: '4624',
+          bridge: '24',
+          temple: '140',
+        },
+        {
+          primary: '48',
+          temple: '150',
+        },
+      ];
+      const attributes = Attributes.create(rawAttributes);
+      const formatter = new SizeFormatter();
+      const formattedSize = formatter.formatSizesToHTML(attributes);
+      expect(formattedSize).toBe(`<strong>46 - 22/24 - 140 (mm)</strong> <br> <strong>48 - 150 (mm)</strong>`);
+    });
+  });
+
+  // falsy and strange mix of values
+
+  describe('falsy and strange mix of values', () => {
+    it('should ignore falsy types', () => {
+      const rawAttributes = [
+        {
+          primary: '4622',
+          bridge: '22',
+          temple: '140',
+        },
+        {
+          primary: '4624',
+          bridge: '24',
+          temple: '140',
+        },
+        {
+          primary: '4822',
+          temple: '150',
+        },
+        {
+          primary: null,
+          bridge: NaN,
+          temple: undefined,
+        },
+      ];
+      const attributes = Attributes.create(rawAttributes as any);
+      const formatter = new SizeFormatter();
+      const formattedSize = formatter.formatSizesToHTML(attributes);
+      expect(formattedSize).toBe(`<strong>46 - 22/24 - 140 (mm)</strong> <br> <strong>48 - 22 - 150 (mm)</strong>`);
+    });
+
+    it('should ignore falsy types and return empty string', () => {
+      const rawAttributes = [
+        {
+          primary: null,
+        },
+        {
+          primary: NaN,
+        },
+        {
+          primary: undefined,
+        },
+        {
+          primary: '',
+        },
+        {
+          primary: false,
+        },
+      ];
+      const attributes = Attributes.create(rawAttributes as any);
+      const formatter = new SizeFormatter();
+      const formattedSize = formatter.formatSizesToHTML(attributes);
+      expect(formattedSize).toBe('');
+    });
+
+    it('should ignore empty arrays and return an empty string', () => {
+      const rawAttributes = [] as any;
+      const attributes = Attributes.create(rawAttributes);
+      const formatter = new SizeFormatter();
+      const formattedSize = formatter.formatSizesToHTML(attributes as any);
+      expect(formattedSize).toBe('');
+    });
   });
 });
-
-// describe('formatSizesToHTML', () => {
-//   it('should ignore 25 in favor of its own data (such as: 22 and 24)', () => {
-//     const size = Size.create(['4822', '4622', '4624']);
-//     const formatter = new SizeFormatter(size, '25 - 131');
-//     const formattedSize = formatter.formatSizesToHTML();
-//     expect(formattedSize).toBe(`<strong>46 - 22/24 - 131 (mm)</strong> <br> <strong>48 - 22 - 131 (mm)</strong>`);
-//   });
-// });
-
-// describe('formatSizesToHTML', () => {
-//   it('should ignore 25 in favor of its own data (such as: 22 and 24), if the last is present', () => {
-//     const size = Size.create(['4822', '4622', '4624', '50']);
-//     const formatter = new SizeFormatter(size, '25 - 131');
-//     const formattedSize = formatter.formatSizesToHTML();
-//     expect(formattedSize).toBe(
-//       `<strong>46 - 22/24 - 131 (mm)</strong> <br> <strong>48 - 22 - 131 (mm)</strong> <br> <strong>50 - 25 - 131 (mm)</strong>`,
-//     );
-//   });
-// });
-
-// describe('formatSizesToHTML', () => {
-//   it('should ignore falsy extra size', () => {
-//     const size = Size.create(['4822', '4622', '4624']);
-//     const formatter = new SizeFormatter(size, '');
-//     const formattedSize = formatter.formatSizesToHTML();
-//     expect(formattedSize).toBe(`<strong>46 - 22/24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`);
-//   });
-// });
-
-// describe('formatSizesToHTML', () => {
-//   it('should ignore undefined extra size', () => {
-//     const size = Size.create(['4822', '4622', '4624']);
-//     const formatter = new SizeFormatter(size, undefined);
-//     const formattedSize = formatter.formatSizesToHTML();
-//     expect(formattedSize).toBe(`<strong>46 - 22/24 (mm)</strong> <br> <strong>48 - 22 (mm)</strong>`);
-//   });
-// });
