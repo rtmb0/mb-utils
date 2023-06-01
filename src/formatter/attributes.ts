@@ -20,7 +20,8 @@ export class Attributes {
   static create(attributes: AttributeValueInput[]) {
     if (!attributes || !Array.isArray(attributes)) throw new Error('Attributes are not defined');
 
-    const isConvertibleToNumber = (attribute: AttributeValueInput) => !isNaN(parseFloat(attribute?.primary?.toString()));
+    const isConvertibleToNumber = (attribute: AttributeValueInput) =>
+      !isNaN(parseFloat(attribute?.primary?.toString()));
     const isPrimaryValid = (attribute: AttributeValueInput) => attribute.primary && isConvertibleToNumber(attribute);
 
     const validAttributes: AttributeValue[] = attributes.filter(isPrimaryValid).map((attribute) => {

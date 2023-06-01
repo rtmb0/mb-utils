@@ -64,7 +64,7 @@ describe('formatSizesToHTML', () => {
 });
 
 describe('formatSizesToHTML', () => {
-    it('should format only number convertible strings within an array of strings', () => {
+  it('should format only number convertible strings within an array of strings', () => {
     const rawAttributes = [
       {
         primary: '4422',
@@ -79,9 +79,7 @@ describe('formatSizesToHTML', () => {
     const attributes = Attributes.create(rawAttributes);
     const formatter = new SizeFormatter();
     const formattedSize = formatter.formatSizesToHTML(attributes);
-    expect(formattedSize).toBe(
-      `<strong>44 - 22 (mm)</strong> <br> <strong>46 - 24 (mm)</strong>`,
-    );
+    expect(formattedSize).toBe(`<strong>44 - 22 (mm)</strong> <br> <strong>46 - 24 (mm)</strong>`);
   });
   it('should format both double and four digit convertible strings within an array of strings', () => {
     const rawAttributes = [
